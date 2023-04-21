@@ -1,9 +1,13 @@
+import os
+
 from django.contrib.auth.models import (
     AbstractUser,
     BaseUserManager,
 )
 from django.db import models
 from django.utils.translation import gettext as _
+
+from config import settings
 
 
 class UserManager(BaseUserManager):
@@ -48,3 +52,22 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
 
     objects = UserManager()
+
+
+def user_image_file_path(instance, filename):
+    _, extension = os.path.splitext(filename)
+    filename = f"{instance.username}.{extension}"
+
+    return os.path.join("uploads/user-image/", filename)
+
+
+class Profile(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    username = models.CharField(max_length=63, unique=True)
+    first_name = models.CharField(max_length=63)
+    last_name = models.CharField(max_length=63)
+    bio = models.CharField(max_length=255)
+    image = models.ImageField(null=True, upload_to=user_image_file_path)
+
+    def __str__(self) -> str:
+        return self.username
