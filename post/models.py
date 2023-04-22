@@ -31,7 +31,7 @@ class Post(models.Model):
         blank=True,
         null=True
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now=True)
     hashtags = models.ManyToManyField(Hashtag, blank=True, related_name="posts")
 
     def __str__(self):
