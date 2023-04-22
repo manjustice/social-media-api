@@ -46,6 +46,8 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     username = None
+    first_name = None
+    last_name = None
     email = models.EmailField(_("email address"), unique=True)
 
     USERNAME_FIELD = "email"
@@ -62,12 +64,20 @@ def user_image_file_path(instance, filename):
 
 
 class Profile(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="profile"
+    )
     username = models.CharField(max_length=63, unique=True)
     first_name = models.CharField(max_length=63)
     last_name = models.CharField(max_length=63)
     bio = models.CharField(max_length=255)
     image = models.ImageField(null=True, upload_to=user_image_file_path)
+    followers = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name="profiles"
+    )
 
     def __str__(self) -> str:
         return self.username
