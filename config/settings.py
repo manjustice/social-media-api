@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "user",
     "post",
-
 ]
 
 MIDDLEWARE = [
@@ -143,8 +142,8 @@ REST_FRAMEWORK = {
 
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Cinema Service API",
-    "DESCRIPTION": "Order cinema tickets",
+    "TITLE": "Social media api",
+    "DESCRIPTION": "Following user's profiles and check their posts",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "SWAGGER_UI_SETTINGS": {
