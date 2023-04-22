@@ -1,8 +1,17 @@
-from rest_framework import generics
+from django.contrib.auth import get_user_model
+from rest_framework import generics, mixins, viewsets, status
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from user.serializers import UserSerializer, ProfileSerializer
+from user.models import Profile
+from user.serializers import (
+    UserSerializer,
+    ProfileListSerializer,
+    ProfileDetailSerializer,
+)
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -10,9 +19,44 @@ class CreateUserView(generics.CreateAPIView):
 
 
 class ManageProfileView(generics.RetrieveUpdateAPIView):
-    serializer_class = ProfileSerializer
+    serializer_class = UserSerializer
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     def get_object(self):
         return self.request.user
+
+
+class ProfileViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet,
+):
+    queryset = Profile.objects.all()
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def get_serializer_class(self):
+        print(self.action)
+        if self.action == "retrieve":
+            return ProfileDetailSerializer
+
+        return ProfileListSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    @action(methods=["GET"], detail=True, url_path="follow")
+    def follow_unfollow_user(self, request, pk=None):
+        user = get_user_model().objects.get(id=request.user.id)
+        following = get_user_model().objects.get(id=pk)
+        if user != following:
+            if user in following.profile.followers.all():
+                following.profile.followers.remove(user.id)
+            else:
+                following.profile.followers.add(user.id)
+
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)

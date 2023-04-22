@@ -26,7 +26,27 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
-class ProfileSerializer(serializers.ModelSerializer):
+class UserListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = ("email", )
+
+
+class ProfileListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = "username"
+        fields = (
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "bio",
+            "image",
+        )
+
+
+class ProfileDetailSerializer(ProfileListSerializer):
+    followers = UserListSerializer(many=True, read_only=True)
+
+    class Meta(ProfileListSerializer.Meta):
+        fields = ProfileListSerializer.Meta.fields + ("followers", )
