@@ -1,17 +1,15 @@
 from rest_framework import serializers
-from .models import Post, Hashtag
-
-
-class HashtagSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Hashtag
-        fields = ("name", )
+from .models import Post
 
 
 class PostSerializer(serializers.ModelSerializer):
-    hashtags = HashtagSerializer(many=True, read_only=True)
-    user = serializers.CharField(source="user.email", read_only=True)
-
     class Meta:
         model = Post
-        fields = "__all__"
+        fields = ("id", "created_at", "content", "user", "hashtags")
+        read_only_fields = ("id", "user")
+
+
+class PostListSerializer(PostSerializer):
+    hashtags = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field="name"
+    )
