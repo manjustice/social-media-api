@@ -38,8 +38,16 @@ class ProfileViewSet(
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
+    def get_queryset(self):
+        queryset = self.queryset
+        username = self.request.query_params.get("username")
+
+        if username:
+            queryset = queryset.filter(username__icontains=username)
+
+        return queryset.distinct()
+
     def get_serializer_class(self):
-        print(self.action)
         if self.action == "retrieve":
             return ProfileDetailSerializer
 
