@@ -25,7 +25,7 @@ class PostViewSet(viewsets.ModelViewSet):
         user_profile_id = self.request.user.profile.id
 
         queryset = self.queryset.filter(
-            user_id__in=list(followed_users_ids) + [user_profile_id]
+            author_id__in=list(followed_users_ids) + [user_profile_id]
         )
 
         hashtags = self.request.query_params.get("hashtags")
@@ -41,7 +41,7 @@ class PostViewSet(viewsets.ModelViewSet):
         return PostSerializer
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        serializer.save(author=self.request.user)
 
     @extend_schema(
         parameters=[
