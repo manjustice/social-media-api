@@ -5,12 +5,13 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import Post
 from .serializers import PostSerializer, PostListSerializer
+from .permissions import IsAuthorOrReadOnly
 
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsAuthorOrReadOnly)
 
     @staticmethod
     def _params_to_ints(qs):

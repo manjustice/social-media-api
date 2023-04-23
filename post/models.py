@@ -11,7 +11,7 @@ class Hashtag(models.Model):
 
 
 class Post(models.Model):
-    user = models.ForeignKey(
+    author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="posts"
