@@ -13,6 +13,7 @@ from user.serializers import (
     ProfileListSerializer,
     ProfileDetailSerializer,
 )
+from .permissions import IsUserOrReadOnly
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -37,7 +38,7 @@ class ProfileViewSet(
 ):
     queryset = Profile.objects.all()
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsUserOrReadOnly)
 
     def get_queryset(self):
         queryset = self.queryset

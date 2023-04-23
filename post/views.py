@@ -9,7 +9,7 @@ from .permissions import IsAuthorOrReadOnly
 
 
 class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all()
+    queryset = Post.objects.all().prefetch_related("hashtags")
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated, IsAuthorOrReadOnly)
 
@@ -20,18 +20,18 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         followed_users_ids = (
-            self.request.user.profile.followers.all().values_list("id")
+            self.request.user.profile.followers.all()
         )
         user_profile_id = self.request.user.profile.id
 
         queryset = self.queryset.filter(
-            author_id__in=list(followed_users_ids) + [user_profile_id]
+            author__in=list(followed_users_ids) + [user_profile_id]
         )
 
         hashtags = self.request.query_params.get("hashtags")
         if hashtags:
             hashtags_ids = self._params_to_ints(hashtags)
-            queryset = queryset.filter(hashtags__id__in=hashtags_ids)
+            queryset = (queryset.filter(hashtags__id__in=hashtags_ids))
 
         return queryset.distinct()
 
